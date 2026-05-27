@@ -80,7 +80,7 @@ export class AddEditComponent implements OnInit {
           this.alertService.success('Account created successfully', { keepAfterRouteChange: true });
           this.router.navigate(['/admin/accounts']);
         },
-        error: err => {
+        error: (err: any) => {
           this.error = err;
           this.loading = false;
         }
