@@ -24,7 +24,7 @@ export class ListComponent implements OnInit {
 
   deleteAccount(account: Account & { isDeleting?: boolean }) {
     account.isDeleting = true;
-    this.accountService.delete(account.id)
+    this.accountService.delete(account.id!)
       .pipe(first())
       .subscribe(() => {
         this.accounts = this.accounts.filter(x => x.id !== account.id);
