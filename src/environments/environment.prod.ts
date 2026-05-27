@@ -1,4 +1,4 @@
 export const environment = {
     production: true,
-    apiUrl: 'https://ipt-2026-backend-b878.onrender.com'
+    apiUrl: 'https://node-mysql-api-2-4y5w.onrender.com'
 };
