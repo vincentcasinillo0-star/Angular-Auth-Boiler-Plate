@@ -15,26 +15,26 @@ export class AccountService {
     public account: Observable<Account | null>;
 
     constructor(private router: Router, private http: HttpClient) {
-    const storedAccount = localStorage.getItem('account');
-    this.accountSubject = new BehaviorSubject<Account | null>(
-        storedAccount ? JSON.parse(storedAccount) : null
-    );
-    this.account = this.accountSubject.asObservable();
-}
+        const storedAccount = localStorage.getItem('account');
+        this.accountSubject = new BehaviorSubject<Account | null>(
+            storedAccount ? JSON.parse(storedAccount) : null
+        );
+        this.account = this.accountSubject.asObservable();
+    }
 
     public get accountValue() {
         return this.accountSubject.value;
     }
 
     login(email: string, password: string) {
-    return this.http.post<any>(`${baseUrl}/authenticate`, { email, password }, { withCredentials: true })
-        .pipe(map(account => {
-            localStorage.setItem('account', JSON.stringify(account));
-            this.accountSubject.next(account);
-            this.startRefreshTokenTimer();
-            return account;
-        }));
-}
+        return this.http.post<any>(`${baseUrl}/authenticate`, { email, password }, { withCredentials: true })
+            .pipe(map(account => {
+                localStorage.setItem('account', JSON.stringify(account));
+                this.accountSubject.next(account);
+                this.startRefreshTokenTimer();
+                return account;
+            }));
+    }
 
     logout() {
         localStorage.removeItem('account');
@@ -42,7 +42,7 @@ export class AccountService {
         this.stopRefreshTokenTimer();
         this.accountSubject.next(null);
         this.router.navigate(['/account/login']);
-}
+    }
 
     refreshToken() {
         return this.http.post<any>(`${baseUrl}/refresh-token`, {}, { withCredentials: true })
@@ -81,6 +81,10 @@ export class AccountService {
         return this.http.get<Account>(`${baseUrl}/${id}`);
     }
 
+    create(params: any) {
+        return this.http.post(baseUrl, params);
+    }
+
     update(id: string, params: any) {
         return this.http.put(`${baseUrl}/${id}`, params)
             .pipe(map((account: any) => {
@@ -103,13 +107,14 @@ export class AccountService {
     private refreshTokenTimeout?: any;
 
     private startRefreshTokenTimer() {
-    const rawToken = String(this.accountValue?.jwtToken ?? '');
-    const jwtBase64 = rawToken.split('.')[1];
-    const jwtPayload = JSON.parse(atob(jwtBase64));
-    const expires = new Date(jwtPayload.exp * 1000);
-    const timeout = expires.getTime() - Date.now() - (60 * 1000);
-    this.refreshTokenTimeout = setTimeout(() => this.refreshToken().subscribe(), timeout);
-}
+        const rawToken = String(this.accountValue?.jwtToken ?? '');
+        const jwtBase64 = rawToken.split('.')[1];
+        const jwtPayload = JSON.parse(atob(jwtBase64));
+        const expires = new Date(jwtPayload.exp * 1000);
+        const timeout = expires.getTime() - Date.now() - (60 * 1000);
+        this.refreshTokenTimeout = setTimeout(() => this.refreshToken().subscribe(), timeout);
+    }
+
     private stopRefreshTokenTimer() {
         clearTimeout(this.refreshTokenTimeout);
     }
