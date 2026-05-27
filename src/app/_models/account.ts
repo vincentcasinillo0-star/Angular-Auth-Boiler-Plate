@@ -7,3 +7,8 @@ export class Account {
     isVerified?: boolean;
     jwtToken?: SVGStringList;
 }
+
+export enum Role {
+    Admin = 'Admin',
+    User = 'User'
+}
