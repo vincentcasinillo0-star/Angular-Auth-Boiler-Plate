@@ -4,6 +4,7 @@ export class Account {
     firstName?: string;
     lastName?: string;
     email?: string;
+    role?: string;
     isVerified?: boolean;
     jwtToken?: SVGStringList;
 }
