@@ -3,39 +3,13 @@
   "version": 1,
   "cli": {
     "packageManager": "npm",
-    "analytics": "17d2ea38-c8e2-4d32-a222-97e800d3cc3d"
+    "analytics": false
   },
   "newProjectRoot": "projects",
   "projects": {
-    "angular-auth-boilerplate": {
+    "ipt-2026-frontend": {
       "projectType": "application",
-      "schematics": {
-        "@schematics/angular:component": {
-          "style": "less",
-          "skipTests": true
-        },
-        "@schematics/angular:class": {
-          "skipTests": true
-        },
-        "@schematics/angular:directive": {
-          "skipTests": true
-        },
-        "@schematics/angular:guard": {
-          "skipTests": true
-        },
-        "@schematics/angular:interceptor": {
-          "skipTests": true
-        },
-        "@schematics/angular:pipe": {
-          "skipTests": true
-        },
-        "@schematics/angular:resolver": {
-          "skipTests": true
-        },
-        "@schematics/angular:service": {
-          "skipTests": true
-        }
-      },
+      "schematics": {},
       "root": "",
       "sourceRoot": "src",
       "prefix": "app",
@@ -45,7 +19,6 @@
           "options": {
             "browser": "src/main.ts",
             "tsConfig": "tsconfig.app.json",
-            "inlineStyleLanguage": "less",
             "assets": [
               {
                 "glob": "**/*",
@@ -54,10 +27,7 @@
             ],
             "styles": [
               "node_modules/bootstrap/dist/css/bootstrap.min.css",
-              "src/styles.less"
-            ],
-            "scripts": [
-              "node_modules/bootstrap/dist/js/bootstrap.bundle.min.js"
+              "src/styles.css"
             ]
           },
           "configurations": {
@@ -88,13 +58,16 @@
           "builder": "@angular/build:dev-server",
           "configurations": {
             "production": {
-              "buildTarget": "angular-auth-boilerplate:build:production"
+              "buildTarget": "ipt-2026-frontend:build:production"
             },
             "development": {
-              "buildTarget": "angular-auth-boilerplate:build:development"
+              "buildTarget": "ipt-2026-frontend:build:development"
             }
           },
           "defaultConfiguration": "development"
+        },
+        "test": {
+          "builder": "@angular/build:unit-test"
         }
       }
     }

@@ -1,15 +1,17 @@
-import { Component } from '@angular/core';
-import { CommonModule } from '@angular/common';
-import { inject } from '@angular/core';
-
+import { Component, OnInit } from '@angular/core';
 import { AccountService } from '@app/_services';
+import { Account } from '@app/_models';
 
-@Component({ 
-  templateUrl: 'home.component.html',
-  standalone: true,
-  imports: [CommonModule]
+@Component({
+    standalone: false,
+    templateUrl: './home.component.html'
 })
-export class HomeComponent {
-  private accountService = inject(AccountService);
-  account$ = this.accountService.account;
+export class HomeComponent implements OnInit {
+    account!: Account;
+
+    constructor(private accountService: AccountService) { }
+
+    ngOnInit() {
+        this.accountService.account.subscribe(x => this.account = x!);
+    }
 }

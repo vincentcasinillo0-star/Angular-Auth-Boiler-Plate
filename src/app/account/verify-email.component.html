@@ -1,16 +1,7 @@
-<div class="text-center">
-  <div *ngIf="verifying">
-    <span class="spinner-border spinner-border-lg align-center"></span>
-    <p>Verifying...</p>
-  </div>
-  <div *ngIf="!verifying">
-    <div *ngIf="!error" class="alert alert-success">
-      Verification successful, you can now login
-    </div>
-    <div *ngIf="error" class="alert alert-danger">
-      Verification failed: {{error}}
-      <br>
-      <a routerLink="/account/forgot-password">Click here to request a new verification email</a>
-    </div>
-  </div>
+<h4 class="card-title">Verify Email</h4>
+<div *ngIf="emailVerified">
+    <p>Your email has been verified, you can now <a routerLink="/account/login">login</a>.</p>
+</div>
+<div *ngIf="!emailVerified">
+    <p>Verifying your email...</p>
 </div>

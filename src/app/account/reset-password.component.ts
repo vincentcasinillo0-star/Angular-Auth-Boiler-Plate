@@ -1,85 +1,85 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, ChangeDetectorRef } from '@angular/core';
+import { ActivatedRoute, Router, RouterLink } from '@angular/router';
+import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { CommonModule } from '@angular/common';
-import { Router, ActivatedRoute, RouterLink } from '@angular/router';
-import { ReactiveFormsModule, FormBuilder, FormGroup, Validators } from '@angular/forms';
-import { first } from 'rxjs/operators';
 
-import { AccountService, AlertService } from '@app/_services';
-import { mustMatch } from '@app/_helpers';
+import { AccountService } from '@app/_services';
+import { AlertService } from '@app/_services';
 
-enum TokenStatus {
-  Validating,
-  Valid,
-  Invalid
-}
-
-@Component({ 
-  templateUrl: 'reset-password.component.html',
-  standalone: true,
-  imports: [CommonModule, ReactiveFormsModule, RouterLink]
+@Component({
+    standalone: false,
+    templateUrl: './reset-password.component.html'
 })
 export class ResetPasswordComponent implements OnInit {
-  TokenStatus = TokenStatus;
-  tokenStatus = TokenStatus.Validating;
-  token!: string;
-  form!: FormGroup;
-  loading = false;
-  submitted = false;
-  error = '';
+    form!: FormGroup;
+    loading = false;
+    submitted = false;
+    tokenValid = false;
 
-  constructor(
-    private formBuilder: FormBuilder,
-    private route: ActivatedRoute,
-    private router: Router,
-    private accountService: AccountService,
-    private alertService: AlertService
-  ) { }
+    constructor(
+        private formBuilder: FormBuilder,
+        private route: ActivatedRoute,
+        private router: Router,
+        private accountService: AccountService,
+        private alertService: AlertService,
+        private cdr: ChangeDetectorRef
+    ) { }
 
-  ngOnInit() {
-    this.token = this.route.snapshot.queryParams['token'];
+    ngOnInit() {
+        const token = this.route.snapshot.queryParams['token'];
+        this.accountService.validateResetToken(token)
+            .subscribe({
+                next: () => {
+                    this.tokenValid = true;
+                    this.cdr.detectChanges();
+                },
+                error: () => {
+                    this.alertService.error('Invalid or expired reset token, please go back to forgot password and try again.');
+                    this.cdr.detectChanges();
+                }
+            });
 
-    // remove token from url to prevent http referer leakage
-    this.router.navigate([], { relativeTo: this.route, replaceUrl: true });
+        this.form = this.formBuilder.group({
+            password: ['', [Validators.required, Validators.minLength(6)]],
+            confirmPassword: ['', Validators.required]
+        }, {
+            validators: this.mustMatch('password', 'confirmPassword')
+        });
+    }
 
-    this.form = this.formBuilder.group({
-      password: ['', [Validators.required, Validators.minLength(6)]],
-      confirmPassword: ['', Validators.required]
-    }, {
-      validators: mustMatch('password', 'confirmPassword')
-    });
+    get f() { return this.form.controls; }
 
-    this.accountService.validateResetToken(this.token)
-      .pipe(first())
-      .subscribe({
-        next: () => {
-          this.tokenStatus = TokenStatus.Valid;
-        },
-        error: () => {
-          this.tokenStatus = TokenStatus.Invalid;
-        }
-      });
-  }
+    mustMatch(controlName: string, matchingControlName: string) {
+        return (formGroup: FormGroup) => {
+            const control = formGroup.controls[controlName];
+            const matchingControl = formGroup.controls[matchingControlName];
+            if (matchingControl.errors && !matchingControl.errors['mustMatch']) return;
+            if (control.value !== matchingControl.value) {
+                matchingControl.setErrors({ mustMatch: true });
+            } else {
+                matchingControl.setErrors(null);
+            }
+        };
+    }
 
-  get f() { return this.form.controls; }
+    onSubmit() {
+        this.submitted = true;
+        this.alertService.clear();
 
-  onSubmit() {
-    this.submitted = true;
-    this.alertService.clear();
+        if (this.form.invalid) return;
 
-    if (this.form.invalid) return;
-
-    this.loading = true;
-    this.accountService.resetPassword(this.token, this.f['password'].value, this.f['confirmPassword'].value)
-      .pipe(first())
-      .subscribe({
-        next: () => {
-          this.alertService.success('Password reset successful, you can now login', { keepAfterRouteChange: true });
-          this.router.navigate(['/account/login']);
-        },
-        error: err => {
-          this.error = err;
-          this.loading = false;
-        }
-      });
-  }
+        this.loading = true;
+        const token = this.route.snapshot.queryParams['token'];
+        this.accountService.resetPassword(token, this.f['password'].value, this.f['confirmPassword'].value)
+            .subscribe({
+                next: () => {
+                    this.alertService.success('Password reset successful, you can now login', { keepAfterRouteChange: true });
+                    this.router.navigate(['/account/login']);
+                },
+                error: err => {
+                    this.alertService.error(err);
+                    this.loading = false;
+                }
+            });
+    }
 }

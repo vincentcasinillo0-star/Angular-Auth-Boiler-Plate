@@ -1,5 +1,25 @@
-<h1>Admin Area</h1>
-<p>You're logged in as an admin.</p>
-<nav class="nav nav-pills mb-3">
-  <a class="nav-link" routerLink="accounts" routerLinkActive="active">Manage Accounts</a>
-</nav>
+<div class="card mt-4">
+    <div class="card-body">
+        <h4 class="card-title">Admin — All Accounts</h4>
+        <table class="table table-striped">
+            <thead>
+                <tr>
+                    <th>Name</th>
+                    <th>Email</th>
+                    <th>Role</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr *ngFor="let account of accounts">
+                    <td>{{account.firstName}} {{account.lastName}}</td>
+                    <td>{{account.email}}</td>
+                    <td>{{account.role}}</td>
+                    <td>
+                        <button (click)="deleteAccount(account.id!)" class="btn btn-danger btn-sm">Delete</button>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+</div> 

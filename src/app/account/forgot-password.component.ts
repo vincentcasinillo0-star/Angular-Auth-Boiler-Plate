@@ -1,54 +1,51 @@
 import { Component, OnInit } from '@angular/core';
-import { CommonModule } from '@angular/common';
 import { RouterLink } from '@angular/router';
-import { ReactiveFormsModule, FormBuilder, FormGroup, Validators } from '@angular/forms';
-import { first } from 'rxjs/operators';
+import { FormBuilder, FormGroup, Validators } from '@angular/forms';
+import { CommonModule } from '@angular/common';
 
-import { AccountService, AlertService } from '@app/_services';
+import { AccountService } from '@app/_services';
+import { AlertService } from '@app/_services';
 
-@Component({ 
-  templateUrl: 'forgot-password.component.html',
-  standalone: true,
-  imports: [CommonModule, ReactiveFormsModule, RouterLink]
+@Component({
+    standalone: false,
+    templateUrl: './forgot-password.component.html'
 })
 export class ForgotPasswordComponent implements OnInit {
-  form!: FormGroup;
-  loading = false;
-  submitted = false;
-  error = '';
+    form!: FormGroup;
+    loading = false;
+    submitted = false;
 
-  constructor(
-    private formBuilder: FormBuilder,
-    private accountService: AccountService,
-    private alertService: AlertService
-  ) { }
+    constructor(
+        private formBuilder: FormBuilder,
+        private accountService: AccountService,
+        private alertService: AlertService
+    ) { }
 
-  ngOnInit() {
-    this.form = this.formBuilder.group({
-      email: ['', [Validators.required, Validators.email]]
-    });
-  }
+    ngOnInit() {
+        this.form = this.formBuilder.group({
+            email: ['', [Validators.required, Validators.email]]
+        });
+    }
 
-  get f() { return this.form.controls; }
+    get f() { return this.form.controls; }
 
-  onSubmit() {
-    this.submitted = true;
-    this.alertService.clear();
+    onSubmit() {
+        this.submitted = true;
+        this.alertService.clear();
 
-    if (this.form.invalid) return;
+        if (this.form.invalid) return;
 
-    this.loading = true;
-    this.accountService.forgotPassword(this.f['email'].value)
-      .pipe(first())
-      .subscribe({
-        next: () => {
-          this.alertService.success('Please check your email for password reset instructions');
-          this.loading = false;
-        },
-        error: err => {
-          this.error = err;
-          this.loading = false;
-        }
-      });
-  }
+        this.loading = true;
+        this.accountService.forgotPassword(this.f['email'].value)
+            .subscribe({
+                next: () => {
+                    this.alertService.success('Please check your email for password reset instructions');
+                    this.loading = false;
+                },
+                error: err => {
+                    this.alertService.error(err);
+                    this.loading = false;
+                }
+            });
+    }
 }

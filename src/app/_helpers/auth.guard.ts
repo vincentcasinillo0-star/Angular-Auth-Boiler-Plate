@@ -1,25 +1,20 @@
 import { inject } from '@angular/core';
-import { Router, ActivatedRouteSnapshot, RouterStateSnapshot } from '@angular/router';
-
+import { Router, ActivatedRouteSnapshot } from '@angular/router';
 import { AccountService } from '@app/_services';
 
-export function authGuard(route: ActivatedRouteSnapshot, state: RouterStateSnapshot) {
-  const router = inject(Router);
-  const accountService = inject(AccountService);
-  const account = accountService.accountValue;
+export function authGuard(route: ActivatedRouteSnapshot) {
+    const router = inject(Router);
+    const accountService = inject(AccountService);
+    const account = accountService.accountValue;
 
-  if (account) {
-    // check if route is restricted by role
-    const { roles } = route.data;
-    if (roles && !roles.includes(account.role)) {
-      // role not authorized so redirect to home page
-      router.navigate(['/']);
-      return false;
+    if (account) {
+        if (route.data['roles'] && !route.data['roles'].includes(account.role)) {
+            router.navigate(['/home']);
+            return false;
+        }
+        return true;
     }
-    return true;
-  }
 
-  // not logged in so redirect to login page with the return url
-  router.navigate(['/account/login'], { queryParams: { returnUrl: state.url } });
-  return false;
+    router.navigate(['/account/login'], { queryParams: { returnUrl: router.url } });
+    return false;
 }
